@@ -20,7 +20,7 @@ public interface Authorization {
      * 进行身份认证 并返回一个是否成功
      *
      * @param subject 传入的认证数据
-     * @return 是否成功 ， 成功返回true
+     * @return 登录信息 （token）
      */
     AccessInfo doAuthorization(AuthorizeSubject subject) throws SQLException;
 }
