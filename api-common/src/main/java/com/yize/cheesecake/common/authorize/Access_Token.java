@@ -8,10 +8,12 @@
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
  */
 
-package com.yize.cheesecake.gateway.common;
+package com.yize.cheesecake.common.authorize;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.yize.cheesecake.common.encrypt.AesEncryptUtils;
+import com.yize.cheesecake.common.exception.ExceptionCatch;
 import lombok.Data;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -66,7 +68,7 @@ public class Access_Token {
      */
     public Access_Token(String token) {
         try {
-            JSONObject object = JSONObject.parseObject(token);
+            JSONObject object = JSONObject.parseObject(AesEncryptUtils.decrypt(token));
             this.token = object.getString("token");
             this.account = object.getString("account");
             this.characters = object.getString("characters");
@@ -74,14 +76,9 @@ public class Access_Token {
             this.invalidTime = object.getString("invalidTime");
             this.deviceId = object.getString("deviceId");
         } catch (Exception e) {
-            this.token = "";
-            this.account = "";
-            this.characters = "";
-            this.permission = null;
-            this.invalidTime = "";
-            this.deviceId = "";
+            /*错误的数据，无法解密*/
+            throw new AuthorizationFailedException(ExceptionCatch.BAD_DATA);
         }
-
     }
 
     /**

@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/10/26
+ * date:  2022/11/1
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -145,7 +145,7 @@ public class GatewayConfiguration {
                     }
 
                     {
-                        add(new ApiPathPredicateItem().setPattern("/service-xserver-auth0/{segment}**").setMatchStrategy(SentinelGatewayConstants.URL_MATCH_STRATEGY_PREFIX));
+                        add(new ApiPathPredicateItem().setPattern("/cheesecake-auth/{segment}**").setMatchStrategy(SentinelGatewayConstants.URL_MATCH_STRATEGY_PREFIX));
                     }
 
                 });

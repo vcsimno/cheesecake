@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/10/26
+ * date:  2022/11/1
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -56,13 +56,21 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         String token = Optional.ofNullable(exchange.getRequest().getHeaders().getFirst("access_token")).orElse("");
 
         Object obj = null;
+        String deviceId = "";
+        try {
+            deviceId = AesEncryptUtils.decrypt(exchange.getRequest().getHeaders().getFirst("deviceId"));
+        } catch (Exception e) {
+            /*无法解密deviceId 验证无法通过*/
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
         try {
             //考虑到有部分模块是放开不需要 access_token的，所以只对有数据的token进行校验
             if (token.length() > 10) {
                 obj = AesEncryptUtils.decrypt(token);
             }
 
-            if (!gateWayService.PassGateWay(new YiRequest(path, obj))) {
+            if (!gateWayService.PassGateWay(new YiRequest(path, obj, deviceId))) {
                 //不能通过认证 不予放行
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();

@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2022. yize.link
+  ~ editor: yize
+  ~ date:  2022/11/1
+  ~
+  ~ @author yize<vcsimno@163.com>
+  ~ 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yize.cheesecake.authorize.mapper.OnlineMapper">
+    <resultMap id="BaseResultMap" type="com.yize.cheesecake.authorize.pojo.Online">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="cc_account" jdbcType="VARCHAR" property="ccAccount"/>
+        <result column="cc_token" jdbcType="VARCHAR" property="ccToken"/>
+        <result column="cc_mail" jdbcType="VARCHAR" property="ccMail"/>
+        <result column="cc_phone" jdbcType="VARCHAR" property="ccPhone"/>
+        <result column="cc_areacode" jdbcType="VARCHAR" property="ccAreacode"/>
+        <result column="cc_time" jdbcType="VARCHAR" property="ccTime"/>
+        <result column="cc_ipaddr" jdbcType="VARCHAR" property="ccIpaddr"/>
+        <result column="cc_deviceId" jdbcType="VARCHAR" property="ccDeviceid"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="("
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="("
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+        id
+        , cc_account, cc_token, cc_mail, cc_phone, cc_areacode, cc_time, cc_ipaddr, cc_deviceId
+    </sql>
+    <select id="selectByExample" parameterType="com.yize.cheesecake.authorize.pojo.OnlineExample"
+            resultMap="BaseResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from cc_online
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from cc_online
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from cc_online
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <delete id="deleteByExample" parameterType="com.yize.cheesecake.authorize.pojo.OnlineExample">
+        delete from cc_online
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.yize.cheesecake.authorize.pojo.Online">
+        insert into cc_online (id, cc_account, cc_token,
+                               cc_mail, cc_phone, cc_areacode,
+                               cc_time, cc_ipaddr, cc_deviceId)
+        values (#{id,jdbcType=BIGINT}, #{ccAccount,jdbcType=VARCHAR}, #{ccToken,jdbcType=VARCHAR},
+                #{ccMail,jdbcType=VARCHAR}, #{ccPhone,jdbcType=VARCHAR}, #{ccAreacode,jdbcType=VARCHAR},
+                #{ccTime,jdbcType=VARCHAR}, #{ccIpaddr,jdbcType=VARCHAR}, #{ccDeviceid,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.yize.cheesecake.authorize.pojo.Online">
+        insert into cc_online
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="ccAccount != null">
+                cc_account,
+            </if>
+            <if test="ccToken != null">
+                cc_token,
+            </if>
+            <if test="ccMail != null">
+                cc_mail,
+            </if>
+            <if test="ccPhone != null">
+                cc_phone,
+            </if>
+            <if test="ccAreacode != null">
+                cc_areacode,
+            </if>
+            <if test="ccTime != null">
+                cc_time,
+            </if>
+            <if test="ccIpaddr != null">
+                cc_ipaddr,
+            </if>
+            <if test="ccDeviceid != null">
+                cc_deviceId,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="ccAccount != null">
+                #{ccAccount,jdbcType=VARCHAR},
+            </if>
+            <if test="ccToken != null">
+                #{ccToken,jdbcType=VARCHAR},
+            </if>
+            <if test="ccMail != null">
+                #{ccMail,jdbcType=VARCHAR},
+            </if>
+            <if test="ccPhone != null">
+                #{ccPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="ccAreacode != null">
+                #{ccAreacode,jdbcType=VARCHAR},
+            </if>
+            <if test="ccTime != null">
+                #{ccTime,jdbcType=VARCHAR},
+            </if>
+            <if test="ccIpaddr != null">
+                #{ccIpaddr,jdbcType=VARCHAR},
+            </if>
+            <if test="ccDeviceid != null">
+                #{ccDeviceid,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.yize.cheesecake.authorize.pojo.OnlineExample"
+            resultType="java.lang.Long">
+        select count(*) from cc_online
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update cc_online
+        <set>
+            <if test="record.id != null">
+                id = #{record.id,jdbcType=BIGINT},
+            </if>
+            <if test="record.ccAccount != null">
+                cc_account = #{record.ccAccount,jdbcType=VARCHAR},
+            </if>
+            <if test="record.ccToken != null">
+                cc_token = #{record.ccToken,jdbcType=VARCHAR},
+            </if>
+            <if test="record.ccMail != null">
+                cc_mail = #{record.ccMail,jdbcType=VARCHAR},
+            </if>
+            <if test="record.ccPhone != null">
+                cc_phone = #{record.ccPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="record.ccAreacode != null">
+                cc_areacode = #{record.ccAreacode,jdbcType=VARCHAR},
+            </if>
+            <if test="record.ccTime != null">
+                cc_time = #{record.ccTime,jdbcType=VARCHAR},
+            </if>
+            <if test="record.ccIpaddr != null">
+                cc_ipaddr = #{record.ccIpaddr,jdbcType=VARCHAR},
+            </if>
+            <if test="record.ccDeviceid != null">
+                cc_deviceId = #{record.ccDeviceid,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update cc_online
+        set id = #{record.id,jdbcType=BIGINT},
+        cc_account = #{record.ccAccount,jdbcType=VARCHAR},
+        cc_token = #{record.ccToken,jdbcType=VARCHAR},
+        cc_mail = #{record.ccMail,jdbcType=VARCHAR},
+        cc_phone = #{record.ccPhone,jdbcType=VARCHAR},
+        cc_areacode = #{record.ccAreacode,jdbcType=VARCHAR},
+        cc_time = #{record.ccTime,jdbcType=VARCHAR},
+        cc_ipaddr = #{record.ccIpaddr,jdbcType=VARCHAR},
+        cc_deviceId = #{record.ccDeviceid,jdbcType=VARCHAR}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yize.cheesecake.authorize.pojo.Online">
+        update cc_online
+        <set>
+            <if test="ccAccount != null">
+                cc_account = #{ccAccount,jdbcType=VARCHAR},
+            </if>
+            <if test="ccToken != null">
+                cc_token = #{ccToken,jdbcType=VARCHAR},
+            </if>
+            <if test="ccMail != null">
+                cc_mail = #{ccMail,jdbcType=VARCHAR},
+            </if>
+            <if test="ccPhone != null">
+                cc_phone = #{ccPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="ccAreacode != null">
+                cc_areacode = #{ccAreacode,jdbcType=VARCHAR},
+            </if>
+            <if test="ccTime != null">
+                cc_time = #{ccTime,jdbcType=VARCHAR},
+            </if>
+            <if test="ccIpaddr != null">
+                cc_ipaddr = #{ccIpaddr,jdbcType=VARCHAR},
+            </if>
+            <if test="ccDeviceid != null">
+                cc_deviceId = #{ccDeviceid,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yize.cheesecake.authorize.pojo.Online">
+        update cc_online
+        set cc_account  = #{ccAccount,jdbcType=VARCHAR},
+            cc_token    = #{ccToken,jdbcType=VARCHAR},
+            cc_mail     = #{ccMail,jdbcType=VARCHAR},
+            cc_phone    = #{ccPhone,jdbcType=VARCHAR},
+            cc_areacode = #{ccAreacode,jdbcType=VARCHAR},
+            cc_time     = #{ccTime,jdbcType=VARCHAR},
+            cc_ipaddr   = #{ccIpaddr,jdbcType=VARCHAR},
+            cc_deviceId = #{ccDeviceid,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

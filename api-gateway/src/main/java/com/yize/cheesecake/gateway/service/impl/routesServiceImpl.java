@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/10/26
+ * date:  2022/11/1
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -29,7 +29,7 @@ public class routesServiceImpl implements routesService {
                         .uri("lb://cheesecake-api"))
                 .route("auth_route", r -> r.path("/auth/**")
                         .filters(f -> f.rewritePath("/auth/(?<segment>.*)", "/${segment}"))
-                        .uri("lb://service-xserver-auth0"))
+                        .uri("lb://cheesecake-auth"))
                 .route("wss_route", r -> r.path("/wss/**")
                         .filters(f -> f.rewritePath("/wss/(?<segment>.*)", "/${segment}"))
                         .uri("lb://service-xserver-websocket"))

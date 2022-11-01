@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/10/26
+ * date:  2022/11/1
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -44,7 +44,7 @@ public class YiAuthGateWayServiceImpl implements YiAuthGateWayService {
     @Override
     public void InitializingGateWay() {
         //创建自由访问接口
-        AddFreeGate("/user/login");// 用户登录 具体接口为： /user/login/{type}
+        AddFreeGate("/auth/login");// 用户登录 具体接口为： /user/login/{type}
         //创建需要验证接口
         AddAuthGate("/user/main");
     }
@@ -85,7 +85,7 @@ public class YiAuthGateWayServiceImpl implements YiAuthGateWayService {
         }
         //检验需要登录接口
         try {
-            result.set(CheckingAuthGate(request.getObject().toString()));
+            result.set(CheckingAuthGate(request));
         } catch (Exception e) {
             return false;
         }
@@ -115,14 +115,17 @@ public class YiAuthGateWayServiceImpl implements YiAuthGateWayService {
     /**
      * 对会话失效进行校验，如果缓存服务器不存在token标记，则返回401未授权标记。
      *
-     * @param token 会话令牌
+     * @param request 请求的实体类对象
      * @return 校验成功则返回 true
      */
     @Override
-    public boolean CheckingAuthGate(String token) {
+    public boolean CheckingAuthGate(YiRequest request) {
         try {
             RedisUtil redisUtil = new RedisUtil(redisConfig1);
-            Access_Token access_token = new Access_Token(token);
+            Access_Token access_token = new Access_Token(request.getObject().toString());
+            /*如果访问客户端的设备ID 与令牌的不一致，校验不予通过*/
+            if (!access_token.getDeviceId().equals(request.getDeviceId()))
+                return false;
             return !redisUtil.getString(RedisKeys.USER_ACCESS_TOKEN.getValue() + access_token.getToken()).isEmpty();
         } catch (Exception e) {
             //数据包有误
