@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/1
+ * date:  2022/11/3
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -32,7 +32,7 @@ public class AliSMS {
 
     private static final Logger LOGGER = LogManager.getLogger(AliSMS.class);
     private static final String KeyId = "LTAI5tC1gBRW31KSfJiAd2J7"; //AccessKey ID
-    private static final String KeySecret = "JpqvsIouhzdpUnCd5y3hbDgi0K0Nmn"; //AccessKey Secret
+    private static final String KeySecret = ""; //AccessKey Secret
     private static final String endpoint = "dysmsapi.aliyuncs.com";
 
     /**
