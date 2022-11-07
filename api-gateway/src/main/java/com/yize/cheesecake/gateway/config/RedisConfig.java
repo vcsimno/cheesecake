@@ -1,12 +1,12 @@
-
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/10/26
+ * date:  2022/11/7
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
  */
+
 package com.yize.cheesecake.gateway.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -38,6 +38,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.nio.charset.Charset;
 import java.time.Duration;
 
+import static com.yize.cheesecake.gateway.config.RedisUtilsSu.USERDB;
+import static com.yize.cheesecake.gateway.config.RedisUtilsSu.WEBSOCKET;
+
 
 @Configuration
 @EnableCaching
@@ -52,19 +55,21 @@ public class RedisConfig extends CachingConfigurerSupport {
     @Value("${spring.redis.connect-timeout}")
     private String timeout;
 
-    @Bean("redis_db1")
-    public RedisTemplate<String, String> db1() {
-        return build(host, port, password, timeout, 0);
-    }
+    private RedisTemplate<String, String> red1;
+    private RedisTemplate<String, String> red2;
+    private RedisTemplate<String, String> red3;
 
-    @Bean("redis_db2")
-    public RedisTemplate<String, String> db2() {
-        return build(host, port, password, timeout, 1);
-    }
-
-    @Bean("redis_db3")
-    public RedisTemplate<String, String> db3() {
-        return build(host, port, password, timeout, 2);
+    public RedisTemplate<String, String> getResource(String index) {
+        switch (index) {
+            case USERDB: {
+                return red1;
+            }
+            case WEBSOCKET: {
+                return red3;
+            }
+            default:
+                return red2;
+        }
     }
 
     @Bean
@@ -143,6 +148,9 @@ public class RedisConfig extends CachingConfigurerSupport {
 
     @Bean
     public LettuceClientConfigurationBuilderCustomizer configurationBuilderCustomizer() {
+        red1 = build(host, port, password, timeout, 0);
+        red2 = build(host, port, password, timeout, 1);
+        red3 = build(host, port, password, timeout, 2);
         return configBuilder -> configBuilder.readFrom(ReadFrom.REPLICA_PREFERRED);
     }
 

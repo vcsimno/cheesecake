@@ -1,13 +1,15 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/10/26
+ * date:  2022/11/1
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
  */
-package com.yize.cheesecake.gateway.utils;
+package com.yize.cheesecake.gateway.config;
 
+
+import com.yize.cheesecake.gateway.utils.SpringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,32 +17,18 @@ import org.springframework.data.redis.core.RedisTemplate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class RedisUtil {
+public class RedisUtilsSu {
 
-    private static final Logger LOGGER = LogManager.getLogger(RedisUtil.class);
-    /**
-     * Redis连接
-     */
-    private RedisTemplate<String, String> redisTemplate;
-
+    public static final String USERDB = "USERDB"; // 表示用户数据数据库
+    public static final String TEMPLATE = "TEMPLATE"; // 临时存放的数据
+    public static final String WEBSOCKET = "WEBSOCKET"; //  wss 存放数据库
+    private static final Logger LOGGER = LogManager.getLogger(RedisUtilsSu.class);
 
     //=============================common============================
-    public RedisUtil(RedisTemplate<String, String> redis) {
-        redisTemplate = redis;
-        /*
-        if (dbIndex == null || dbIndex > 15 || dbIndex < 0) {
-            dbIndex = 0;
-        }
-        Optional<LettuceConnectionFactory>jedisConnectionFactory =  Optional.ofNullable((LettuceConnectionFactory) redisTemplate.getConnectionFactory());
-        if(jedisConnectionFactory.isPresent()){
-            //jedisConnectionFactory.get().setShareNativeConnection(false);
-            jedisConnectionFactory.get().setDatabase(dbIndex);
-            redisTemplate.setConnectionFactory(jedisConnectionFactory.get());
-            jedisConnectionFactory.get().afterPropertiesSet();
-            return true;
-        }
-        return false;
-         */
+    private RedisTemplate<String, String> redisTemplate;
+
+    public void select(String index) {
+        redisTemplate = SpringUtils.getBean(RedisConfig.class).getResource(index);
     }
 
     /**
@@ -55,7 +43,7 @@ public class RedisUtil {
                 redisTemplate.expire(key, time, TimeUnit.SECONDS);
             }
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
         }
     }
 
@@ -80,7 +68,7 @@ public class RedisUtil {
         try {
             return Boolean.TRUE.equals(redisTemplate.hasKey(key));
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return false;
         }
     }
@@ -94,7 +82,7 @@ public class RedisUtil {
         try {
             Arrays.stream(key).forEach(e -> redisTemplate.delete(e));
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
         }
 
     }
@@ -133,7 +121,7 @@ public class RedisUtil {
         try {
             redisTemplate.opsForValue().set(key, value);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
         }
     }
 
@@ -152,7 +140,7 @@ public class RedisUtil {
                 set(key, value);
             }
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
         }
     }
 
@@ -215,7 +203,7 @@ public class RedisUtil {
         try {
             redisTemplate.opsForHash().putAll(key, map);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
         }
     }
 
@@ -234,7 +222,7 @@ public class RedisUtil {
             }
 
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
         }
     }
 
@@ -249,7 +237,7 @@ public class RedisUtil {
         try {
             redisTemplate.opsForHash().put(key, item, value);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
         }
     }
 
@@ -270,7 +258,7 @@ public class RedisUtil {
             }
             return true;
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return false;
         }
     }
@@ -285,7 +273,7 @@ public class RedisUtil {
         try {
             redisTemplate.opsForHash().delete(key, item);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
         }
     }
 
@@ -336,7 +324,7 @@ public class RedisUtil {
         try {
             return redisTemplate.opsForSet().members(key);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return null;
         }
     }
@@ -352,7 +340,7 @@ public class RedisUtil {
         try {
             return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(key, value));
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return false;
         }
     }
@@ -369,7 +357,7 @@ public class RedisUtil {
             Optional<Long> result = Optional.ofNullable(redisTemplate.opsForSet().add(key, values));
             return result.orElse(0L);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return 0;
         }
     }
@@ -388,7 +376,7 @@ public class RedisUtil {
             if (time > 0) expire(key, time);
             return count.orElse(0L);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return 0;
         }
     }
@@ -404,7 +392,7 @@ public class RedisUtil {
             Optional<Long> result = Optional.ofNullable(redisTemplate.opsForSet().size(key));
             return result.orElse(0L);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return 0;
         }
     }
@@ -421,7 +409,7 @@ public class RedisUtil {
             Optional<Long> result = Optional.ofNullable(redisTemplate.opsForSet().remove(key, values));
             return result.orElse(0L);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return 0;
         }
     }
@@ -439,7 +427,7 @@ public class RedisUtil {
         try {
             return redisTemplate.opsForList().range(key, start, end);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return null;
         }
     }
@@ -455,7 +443,7 @@ public class RedisUtil {
             Optional<Long> result = Optional.ofNullable(redisTemplate.opsForList().size(key));
             return result.orElse(0L);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return 0;
         }
     }
@@ -471,7 +459,7 @@ public class RedisUtil {
         try {
             return redisTemplate.opsForList().index(key, index);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return null;
         }
     }
@@ -488,7 +476,7 @@ public class RedisUtil {
             redisTemplate.opsForList().rightPush(key, value);
             return true;
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return false;
         }
     }
@@ -507,7 +495,7 @@ public class RedisUtil {
             if (time > 0) expire(key, time);
             return true;
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return false;
         }
     }
@@ -524,7 +512,7 @@ public class RedisUtil {
             redisTemplate.opsForList().rightPushAll(key, value);
             return true;
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return false;
         }
     }
@@ -543,7 +531,7 @@ public class RedisUtil {
             if (time > 0) expire(key, time);
             return true;
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return false;
         }
     }
@@ -561,7 +549,7 @@ public class RedisUtil {
             redisTemplate.opsForList().set(key, index, value);
             return true;
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return false;
         }
     }
@@ -579,9 +567,10 @@ public class RedisUtil {
             Optional<Long> result = Optional.ofNullable(redisTemplate.opsForList().remove(key, count, value));
             return result.orElse(0L);
         } catch (Exception e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(LOGGER, e);
             return 0;
         }
     }
+
 
 }

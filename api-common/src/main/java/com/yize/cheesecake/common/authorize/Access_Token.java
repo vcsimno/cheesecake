@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/1
+ * date:  2022/11/7
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -13,6 +13,7 @@ package com.yize.cheesecake.common.authorize;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yize.cheesecake.common.encrypt.AesEncryptUtils;
+import com.yize.cheesecake.common.exception.AuthorizationFailedException;
 import com.yize.cheesecake.common.exception.ExceptionCatch;
 import lombok.Data;
 import lombok.Getter;
@@ -31,7 +32,7 @@ public class Access_Token {
     @Getter
     private String account; // 所属账号
     @Getter
-    private String characters; // 所属用户组(考虑到系统是购物平台，角色固定则以) 【boss,staff,user,su,suAdmin】 boss=店长; staff=店员;user=用户;su=平台老总;suAdmin平台管理员
+    private JSONArray characters; // 所属用户组(考虑到系统是购物平台，角色固定则以) 【boss,staff,user,su,suAdmin】 boss=店长; staff=店员;user=用户;su=平台老总;suAdmin平台管理员
     @Getter
     private JSONArray permission; // 权限
     /*token所属的deviceId*/
@@ -47,12 +48,12 @@ public class Access_Token {
      *
      * @param token       25位令牌
      * @param account     所属账号
-     * @param characters  所属用户组(考虑到系统是购物平台，角色固定则以) 【boss,staff,user,su,suAdmin】 boss=店长; staff=店员;user=用户;su=平台老总;suAdmin平台管理员
+     * @param characters  所属用户组(考虑到系统是购物平台，角色固定则以)
      * @param permission  权限
      * @param invalidTime token过期时间
      * @param deviceId    设备ID
      */
-    public Access_Token(String token, String account, String characters, JSONArray permission, String invalidTime, String deviceId) {
+    public Access_Token(String token, String account, JSONArray characters, JSONArray permission, String invalidTime, String deviceId) {
         this.token = token;
         this.account = account;
         this.characters = characters;
@@ -66,20 +67,31 @@ public class Access_Token {
      *
      * @param token 读取到的token数据
      */
-    public Access_Token(String token) {
+    public Access_Token(String token) throws AuthorizationFailedException {
         try {
             JSONObject object = JSONObject.parseObject(AesEncryptUtils.decrypt(token));
             this.token = object.getString("token");
             this.account = object.getString("account");
-            this.characters = object.getString("characters");
+            this.characters = JSONArray.parseArray(object.getString("characters"));
             this.permission = JSONArray.parseArray(object.getString("permission"));
             this.invalidTime = object.getString("invalidTime");
             this.deviceId = object.getString("deviceId");
         } catch (Exception e) {
             /*错误的数据，无法解密*/
-            throw new AuthorizationFailedException(ExceptionCatch.BAD_DATA);
+            throw new AuthorizationFailedException(ExceptionCatch.INVALID_ACCESS_TOKEN);
         }
     }
+
+    public Access_Token(String token, boolean decrypted) {
+        JSONObject object = JSONObject.parseObject(token);
+        this.token = object.getString("token");
+        this.account = object.getString("account");
+        this.characters = JSONArray.parseArray(object.getString("characters"));
+        this.permission = JSONArray.parseArray(object.getString("permission"));
+        this.invalidTime = object.getString("invalidTime");
+        this.deviceId = object.getString("deviceId");
+    }
+
 
     /**
      * 把对象转换成json数据，用于写入到redis

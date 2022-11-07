@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/1
+ * date:  2022/11/7
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -10,6 +10,7 @@
 package com.yize.cheesecake.authorize.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
+import com.yize.cheesecake.authorize.exception.AuthorizationFailedException;
 import com.yize.cheesecake.authorize.mapper.OnlineMapper;
 import com.yize.cheesecake.authorize.mapper.PromisesMapper;
 import com.yize.cheesecake.authorize.mapper.UserMapper;
@@ -18,7 +19,10 @@ import com.yize.cheesecake.authorize.service.Authorization;
 import com.yize.cheesecake.authorize.utils.redis.RedisUtils;
 import com.yize.cheesecake.authorize.utils.redis.RedisUtilsSu;
 import com.yize.cheesecake.common.GenericTools;
-import com.yize.cheesecake.common.authorize.*;
+import com.yize.cheesecake.common.authorize.AccessInfo;
+import com.yize.cheesecake.common.authorize.Access_Token;
+import com.yize.cheesecake.common.authorize.AuthorizeMode;
+import com.yize.cheesecake.common.authorize.AuthorizeSubject;
 import com.yize.cheesecake.common.encrypt.AesEncryptUtils;
 import com.yize.cheesecake.common.exception.ExceptionCatch;
 import com.yize.cheesecake.common.header.GetHeader;
@@ -88,11 +92,7 @@ public class Login implements Authorization {
             PromisesExample promisesExample = new PromisesExample();
             promisesExample.createCriteria().andCcAccountEqualTo(userList.get(0).getCcAccount());
             List<Promises> promises = promisesMapper.selectByExample(promisesExample);
-
-            JSONArray promise = new JSONArray();
-            for (Promises obj : promises) {
-                promise.add(obj.getCcPromise());
-            }
+            JSONArray promise = JSONArray.parseArray(promises.get(0).getCcPromise());
 
             /*建立 AccessInfo*/
             /*10位识别码*/
@@ -103,13 +103,13 @@ public class Login implements Authorization {
                     /*账号*/
                     userList.get(0).getCcAccount(),
                     /*角色*/
-                    userList.get(0).getCcCharacters(),
+                    JSONArray.parseArray(userList.get(0).getCcCharacters()),
                     /*权限*/
                     promise,
                     /* token有效期 */
                     GenericTools.getDateCompare(LocalDateTime.now().plusDays(token_keep)),
                     /* token 与设备ID绑定 */
-                    GetHeader.getDeviceId(request)
+                    GetHeader.getDeviceId()
             );
             /*对access_token进行aes加密*/
             String tokenEncrypt = AesEncryptUtils.encrypt(access_token.toJSONString().toString());
@@ -123,7 +123,7 @@ public class Login implements Authorization {
             /*用户的手机区号*/
             online.setCcAreacode(userList.get(0).getCcAreacode());
             /*设备ID*/
-            online.setCcDeviceid(GetHeader.getDeviceId(request));
+            online.setCcDeviceid(GetHeader.getDeviceId());
             /*邮箱地址*/
             online.setCcMail(userList.get(0).getCcMail());
             /*登录时间*/
@@ -131,7 +131,7 @@ public class Login implements Authorization {
             /*访问令牌*/
             online.setCcToken(token);
             /*ip地址*/
-            online.setCcIpaddr(GetHeader.getIpAddr(request));
+            online.setCcIpaddr(GetHeader.getIpAddr());
             /*手机号码*/
             online.setCcPhone(userList.get(0).getCcPhone());
 
@@ -147,6 +147,7 @@ public class Login implements Authorization {
             return info;
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new AuthorizationFailedException(e.getMessage());
         } finally {
             sqlSession.get().close();
@@ -214,7 +215,7 @@ public class Login implements Authorization {
     private List<User> CurlUserByToken(AuthorizeSubject subject, SqlSession sqlSession) {
 
         Access_Token access_token = new Access_Token(subject.getAccess_token());
-        String deviceId = GetHeader.getDeviceId(request);
+        String deviceId = GetHeader.getDeviceId();
         if (!access_token.getDeviceId().equals(deviceId)) {
             /*涉嫌盗用token，返回错误的数据*/
             throw new AuthorizationFailedException(ExceptionCatch.BAD_DATA);
@@ -300,6 +301,7 @@ public class Login implements Authorization {
             onlineMapper.deleteByExample(example);
             sqlSession.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new AuthorizationFailedException(e.getMessage());
         }
     }

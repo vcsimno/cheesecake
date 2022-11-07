@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/1
+ * date:  2022/11/7
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -10,60 +10,38 @@
 package com.yize.cheesecake.common.utils.packer;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yize.cheesecake.common.exception.ExceptionCatch;
 import lombok.NoArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 制作返回给客户端的数据包
  */
 @NoArgsConstructor
 public class PackerFactory {
-    private static final Logger LOGGER = LogManager.getLogger(PackerFactory.class);
-
     /**
      * 生产数据包
      *
-     * @param state      0=成功操作  1=失败操作
-     * @param actionCode 动作代码
-     * @param statusCode 状态代码
-     * @param result     结果
+     * @param errCode 1=成功操作  0=失败操作
+     * @param errMsg  状态代码
+     * @param result  结果
      * @return 数据包
      */
-    private static JSONObject packerMade(int state, ActionCode actionCode, String statusCode, Object result) {
-        Map<String, Object> r = new HashMap<>();
+    private static JSONObject PackerMade(int errCode, String errMsg, Object result) {
         JSONObject jsonObject = new JSONObject();
-        try {
-            r.put("errCode", state); // 表示操作成功与否 0=成功 1=失败 2 .3.4 表示对应的代码，这里不需要
-            r.put("action", actionCode); // 当前的操作
-            r.put("errMsg", statusCode); // 操作结果的描述 //具体的错误表示将写在这里。
-            r.put("data", result); // 内容
-            jsonObject.putAll(r);
-
-        } catch (Exception e) {
-            r.put("errCode", 1); // 表示操作失败
-            r.put("action", actionCode); // 当前的操作
-            r.put("errMsg", statusCode); // 错误的原因
-            r.put("data", "SERVER REPORT ERROR"); // 内容
-            jsonObject.putAll(r);
-        }
+        jsonObject.put("errCode", errCode); // 表示操作成功与否 1=成功 0=失败
+        jsonObject.put("errMsg", errMsg); // 具体的错误表示将写在这里。
+        jsonObject.put("data", result); // 内容
         return jsonObject;
     }
 
-
     /**
      * 生产失败提示数据包
-     *
-     * @param actionCode 动作代码
-     * @param statusCode 状态码
-     * @param result     结果
+     * @param errMsg 错误代码
+     * @param result 结果
      * @return 数据包
      */
-    public static JSONObject failedPacker(ActionCode actionCode, String statusCode, Object result) {
-        return PackerFactory.packerMade(1, actionCode, statusCode, result);
+    public static JSONObject SendFailed(String errMsg, Object result) {
+        return PackerFactory.PackerMade(0, errMsg, result);
     }
 
     /**
@@ -71,19 +49,38 @@ public class PackerFactory {
      *
      * @return 数据包
      */
-    public static JSONObject sqlException() {
-        return failedPacker(ActionCode.ACTION_REQUEST, "SQLEXCEPTION", "");
+    public static JSONObject sqlException(String errMsg) {
+        return PackerFactory.SendFailed(errMsg, "");
+    }
+
+    /**
+     * JSON 数据包解析失败
+     */
+    public static JSONObject JSONException() {
+        return PackerFactory.JSONException();
     }
 
     /**
      * 生产成功提示数据包
      *
-     * @param actionCode 动作代码
-     * @param statusCode 状态码
-     * @param result     结果
+     * @param errMsg 错误代码
+     * @param result 结果
      * @return 数据包
      */
-    public static JSONObject successPacker(ActionCode actionCode, String statusCode, Object result) {
-        return PackerFactory.packerMade(0, actionCode, statusCode, result);
+    public static JSONObject SendSuccess(String errMsg, Object result) {
+        return PackerFactory.PackerMade(1, errMsg, result);
+    }
+
+    /**
+     * 发送一个 角色没有授权使用接口的提示
+     *
+     * @return 数据包
+     */
+    public static JSONObject SendUnAuthorizedCharacters() {
+        return PackerFactory.SendFailed(ExceptionCatch.UnAuthorizedCharacters, "");
+    }
+
+    public static JSONObject SendUnAuthorizedPermission() {
+        return PackerFactory.SendFailed(ExceptionCatch.UnAuthorizedPermission, "");
     }
 }

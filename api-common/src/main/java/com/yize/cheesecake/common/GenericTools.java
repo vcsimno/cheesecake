@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/1
+ * date:  2022/11/7
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -10,8 +10,6 @@
 package com.yize.cheesecake.common;
 
 import lombok.NoArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -28,67 +26,6 @@ import java.util.zip.CRC32;
  */
 @NoArgsConstructor
 public class GenericTools {
-    private static final Logger LOGGER = LogManager.getLogger(GenericTools.class);
-
-    /**
-     * 字符串限长
-     */
-    public static enum limitString {
-        LIMIT25(25), LIMIT40(40), LIMIT50(50), LIMIT100(100), LIMIT12(12), LIMIT249(249);
-
-        limitString(int limit) {
-        }
-    }
-
-    /**
-     * INT 转 STRING
-     *
-     * @param _args 参数
-     * @return 值
-     */
-    public static String IntegerToString(int _args) {
-        return String.format("%d", _args);
-    }
-
-    /**
-     * Long 转 STRING
-     *
-     * @param _args 参数
-     * @return 值
-     */
-    public static String LongToString(long _args) {
-        return String.valueOf(_args);
-    }
-
-    /**
-     * Float 转 STRING
-     *
-     * @param _args 参数
-     * @return 值
-     */
-    public static String FloatToString(float _args) {
-        return String.valueOf(_args);
-    }
-
-    /**
-     * Byte 转 STRING
-     *
-     * @param _args 参数
-     * @return 值
-     */
-    public static String ByteToString(byte[] _args) {
-        return new String(_args);
-    }
-
-    /**
-     * String 转 Int
-     *
-     * @param _args 字符串
-     * @return 值
-     */
-    public static int StringToInt(String _args) {
-        return Integer.parseInt(_args);
-    }
 
     /**
      * 判断字符串是否为数字
@@ -144,14 +81,14 @@ public class GenericTools {
      * @return 结果
      */
     public static boolean checkEmail(String email) {
-        boolean flag = false;
+        boolean flag;
         try {
             String check = "^([a-z0-9A-Z]+[-|_|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
             Pattern regex = Pattern.compile(check);
             Matcher matcher = regex.matcher(email);
             flag = matcher.matches();
         } catch (Exception e) {
-            //WriterLog.writerErrorLog(LOGGER, e);
+            return false;
         }
         return flag;
     }
@@ -204,7 +141,6 @@ public class GenericTools {
             Duration duration = Duration.between(start, end);
             return duration.getSeconds();
         } catch (Exception e) {
-            //WriterLog.writerErrorLog(LOGGER, e);
             return -1;
         }
 
