@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/1
+ * date:  2022/11/7
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -12,13 +12,10 @@ package com.yize.cheesecake.gateway.service.impl;
 import com.yize.cheesecake.gateway.common.Access_Token;
 import com.yize.cheesecake.gateway.common.YiRequest;
 import com.yize.cheesecake.gateway.service.YiAuthGateWayService;
-import com.yize.cheesecake.gateway.utils.RedisKeys;
-import com.yize.cheesecake.gateway.utils.RedisUtil;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
+import com.yize.cheesecake.gateway.utils.redis.RedisUtils;
+import com.yize.cheesecake.gateway.utils.redis.RedisUtilsSu;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,9 +24,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class YiAuthGateWayServiceImpl implements YiAuthGateWayService {
-    @Resource
-    @Qualifier("redis_db1")
-    private RedisTemplate<String, String> redisConfig1;
+
+    /*用户access_token 在redis的指针头*/
+    private final static String USER_ACCESS_TOKEN = "user-access-token-";
 
     private final Map<String, List<String>> gates; // 接口
 
@@ -121,12 +118,13 @@ public class YiAuthGateWayServiceImpl implements YiAuthGateWayService {
     @Override
     public boolean CheckingAuthGate(YiRequest request) {
         try {
-            RedisUtil redisUtil = new RedisUtil(redisConfig1);
+            RedisUtils redisUtil = RedisUtils.Instance();
+            redisUtil.select(RedisUtilsSu.USERDB);
             Access_Token access_token = new Access_Token(request.getObject().toString());
             /*如果访问客户端的设备ID 与令牌的不一致，校验不予通过*/
             if (!access_token.getDeviceId().equals(request.getDeviceId()))
                 return false;
-            return !redisUtil.getString(RedisKeys.USER_ACCESS_TOKEN.getValue() + access_token.getToken()).isEmpty();
+            return !redisUtil.getString(USER_ACCESS_TOKEN + access_token.getToken()).isEmpty();
         } catch (Exception e) {
             //数据包有误
             return false;
