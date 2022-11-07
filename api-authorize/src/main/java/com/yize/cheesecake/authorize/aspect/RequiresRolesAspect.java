@@ -12,12 +12,12 @@ package com.yize.cheesecake.authorize.aspect;
 
 import com.yize.cheesecake.authorize.utils.redis.RedisUtils;
 import com.yize.cheesecake.authorize.utils.redis.RedisUtilsSu;
+import com.yize.cheesecake.common.AuthorUtils;
 import com.yize.cheesecake.common.annotation.RequiresRoles;
 import com.yize.cheesecake.common.aspect.PermissionTest;
 import com.yize.cheesecake.common.authorize.Access_Token;
 import com.yize.cheesecake.common.exception.ExceptionCatch;
 import com.yize.cheesecake.common.exception.YiAuthRuntimeExeception;
-import com.yize.cheesecake.common.header.GetHeader;
 import com.yize.cheesecake.common.redis.RedisKeys;
 import com.yize.cheesecake.common.utils.packer.PackerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -27,10 +27,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 
 /*
@@ -66,30 +63,24 @@ public class RequiresRolesAspect {
         String[] requireValue = requiresRoles.value(); // 读取注解中，提交过来的用户权限
         String requireMethod = requiresRoles.method(); // 读取注解中，本次校验的类型 {permission=权限; characters=角色}
 
-        Object[] args = joinPoint.getArgs();
+        //Object[] args = joinPoint.getArgs();
         String res = "";
-
-        /*取得HTTP REQUEST数据*/
-        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = (HttpServletRequest) requestAttributes;
 
         try {
             /*授权标记*/
             boolean isAcception;
-            /*取得access_token*/
-            Access_Token access_token = new Access_Token(GetHeader.getUserToken());
 
             /*判定access_token标记的权限*/
             if (requireMethod.equals("characters")) {
-                isAcception = PermissionTest.test(requireValue, access_token.getCharacters());
+                isAcception = PermissionTest.test(requireValue, AuthorUtils.getCharacters());
             } else {
-                isAcception = PermissionTest.test(requireValue, access_token.getPermission());
+                isAcception = PermissionTest.test(requireValue, AuthorUtils.getPermission());
             }
             if (isAcception) {
                 /*如果token里面有写着包含了权限，那么连接redis进行二次确认*/
                 RedisUtils redis = RedisUtils.Instance();
                 redis.select(RedisUtilsSu.USERDB);
-                String key = RedisKeys.USER_ACCESS_TOKEN.getValue() + access_token.getToken();
+                String key = RedisKeys.USER_ACCESS_TOKEN.getValue() + AuthorUtils.getToken();
                 String value = redis.getString(key);
                 if (value.isEmpty()) {
                     /*用户未被授权使用该接口*/
@@ -120,7 +111,8 @@ public class RequiresRolesAspect {
             //执行到这里走原来的方法
             res = joinPoint.proceed().toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new YiAuthRuntimeExeception(e.getMessage());
+            //e.printStackTrace();
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
