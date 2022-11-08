@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/7
+ * date:  2022/11/8
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -40,10 +40,16 @@ public class YiAuthGateWayServiceImpl implements YiAuthGateWayService {
      */
     @Override
     public void InitializingGateWay() {
-        //创建自由访问接口
-        AddFreeGate("/auth/login");// 用户登录 具体接口为： /user/login/{type}
-        //创建需要验证接口
+        /*创建自由访问接口 {  */
+        /*登录接口*/
+        AddFreeGate("/auth/login");
+        /*SMS短信接口*/
+        AddFreeGate("/auth/sendSms");
+        /* }  */
+
+        /*创建需要验证接口{*/
         AddAuthGate("/user/main");
+        /* }  */
     }
 
     /**

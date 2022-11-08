@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/7
+ * date:  2022/11/8
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -10,9 +10,6 @@
 package com.yize.cheesecake.authorize.controller;
 
 
-import com.yize.cheesecake.authorize.factory.AuthorizeFactory;
-import com.yize.cheesecake.common.AuthorUtils;
-import com.yize.cheesecake.common.authorize.AccessInfo;
 import com.yize.cheesecake.common.authorize.AuthorizeMode;
 import com.yize.cheesecake.common.authorize.AuthorizeSubject;
 import com.yize.cheesecake.common.encrypt.AesEncryptUtils;
@@ -28,7 +25,7 @@ public class testConn {
     @Value("${yize.account.salt}")
     private static String salt;
 
-    @GetMapping(value = "/login")
+    //@GetMapping(value = "/login")
     public String test1() throws SQLException {
 
         AuthorizeSubject subject = new AuthorizeSubject(
@@ -39,7 +36,7 @@ public class testConn {
                 salt
         );
 
-
+        return subject.toString();
 
         /*
 
@@ -56,19 +53,28 @@ public class testConn {
         AuthorizeSubject subject = new AuthorizeSubject(
                 AuthorizeMode.AUTHORIZEBYTOKEN,
                 token);
-*/
+
         AccessInfo info = AuthorizeFactory.doLogin(subject);
         if (info == null) {
             return "对象是null，表示登录失败。";
         }
-        return info.toJSONString();
+        return info.toJSONString();*/
     }
 
-    @GetMapping(value = "/test")
+    @GetMapping(value = "/login")
     public String test2() throws Exception {
-        System.out.println("AuthorUtils.getAccount() = " + AuthorUtils.getAccount());
+        //From<SubjectVO> subjectVO = new From<>();
+
+        //System.out.println(subjectVO.get());
+        /*
+        From<SubjectVO> from = new From<>(new SubjectVO());
+        System.out.println("from.get().getAuth_subject() = " + from.get().getAuth_subject());
+
+        System.out.println("from.get().getArray() = " + from.get().getArray());
 
         return "{\"id\":\"" + AesEncryptUtils.encrypt("4567894") + "\"}";
 
+         */
+        return "{\"id\":\"" + AesEncryptUtils.encrypt("4567894") + "\"}";
     }
 }

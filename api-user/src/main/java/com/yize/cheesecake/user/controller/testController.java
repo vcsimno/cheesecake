@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/1
+ * date:  2022/11/8
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -9,25 +9,22 @@
 
 package com.yize.cheesecake.user.controller;
 
-import com.alibaba.fastjson.JSONObject;
-import com.yize.cheesecake.user.utils.RedisKeys;
-import com.yize.cheesecake.user.utils.RedisUtil;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
+import com.yize.cheesecake.common.annotation.RequiresRoles;
+import com.yize.cheesecake.common.utils.packer.PackerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class testController {
 
-    @Resource
-    @Qualifier("redis_db1")
-    private RedisTemplate<String, String> redisConfig1;
-
     private testConn conn;
+
+    @Autowired
+    private HttpServletRequest request;
 
     public testController(testConn conn) {
         this.conn = conn;
@@ -35,9 +32,6 @@ public class testController {
 
     @GetMapping(value = "/login/{type}")
     public String test(@PathVariable("type") String type) {
-        RedisUtil redisUtil = new RedisUtil(redisConfig1);
-        JSONObject object = JSONObject.parseObject("{\"characters\":\"user\",\"permission\":[\"insert\",\"update\"],\"invalidTime\":\"2022-10-26 14:37:59\",\"account\":\"testAccount\",\"token\":\"zHiWLQiLLaA2uPlA5FtKupOGM\"}");
-        redisUtil.set(RedisKeys.USER_ACCESS_TOKEN.getValue() + object.getString("token"), object.toJSONString());
         return "hello world" + type;
     }
 
@@ -52,8 +46,17 @@ public class testController {
         }
     }
 
+    //@RequiresRoles(value = {"superadmin"}, method = "characters") // 表示判断角色
+    @RequiresRoles(value = {"user:insert", "user:update", "user:delete"})   // 表示判断权限
     @GetMapping(value = "/main")
     public String test3() {
-        return "success.";
+
+        return PackerFactory.SendSuccess("OK");
+    }
+
+    @RequiresRoles(value = {"user:insert", "user:update"})
+    @GetMapping(value = "/main2")
+    public String test4() {
+        return PackerFactory.SendSuccess("OK");
     }
 }

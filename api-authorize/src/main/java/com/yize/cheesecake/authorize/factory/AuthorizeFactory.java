@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/1
+ * date:  2022/11/8
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -14,6 +14,7 @@ import com.yize.cheesecake.authorize.utils.SpringUtils;
 import com.yize.cheesecake.common.authorize.AccessInfo;
 import com.yize.cheesecake.common.authorize.AuthorizeSubject;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 /*
@@ -24,11 +25,10 @@ public class AuthorizeFactory {
     /**
      * 登录类
      *
-     * @param subject 操作主体
      * @return AccessInfo
      */
-    public static AccessInfo doLogin(AuthorizeSubject subject) throws SQLException {
-        return SpringUtils.getBean(Login.class).doAuthorization(subject); // 返回一个 AccessInfo 信息
+    public static AccessInfo doLogin() throws SQLException, IOException {
+        return SpringUtils.getBean(Login.class).doAuthorization(); // 返回一个 AccessInfo 信息
     }
 
     /**

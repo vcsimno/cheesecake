@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/7
+ * date:  2022/11/8
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -26,21 +26,22 @@ public class PackerFactory {
      * @param result  结果
      * @return 数据包
      */
-    private static JSONObject PackerMade(int errCode, String errMsg, Object result) {
+    private static String PackerMade(int errCode, String errMsg, Object result) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("errCode", errCode); // 表示操作成功与否 1=成功 0=失败
         jsonObject.put("errMsg", errMsg); // 具体的错误表示将写在这里。
         jsonObject.put("data", result); // 内容
-        return jsonObject;
+        return jsonObject.toJSONString();
     }
 
     /**
      * 生产失败提示数据包
+     *
      * @param errMsg 错误代码
      * @param result 结果
      * @return 数据包
      */
-    public static JSONObject SendFailed(String errMsg, Object result) {
+    public static String SendFailed(String errMsg, Object result) {
         return PackerFactory.PackerMade(0, errMsg, result);
     }
 
@@ -49,26 +50,25 @@ public class PackerFactory {
      *
      * @return 数据包
      */
-    public static JSONObject sqlException(String errMsg) {
+    public static String sqlException(String errMsg) {
         return PackerFactory.SendFailed(errMsg, "");
     }
 
     /**
      * JSON 数据包解析失败
      */
-    public static JSONObject JSONException() {
+    public static String JSONException() {
         return PackerFactory.JSONException();
     }
 
     /**
      * 生产成功提示数据包
      *
-     * @param errMsg 错误代码
      * @param result 结果
      * @return 数据包
      */
-    public static JSONObject SendSuccess(String errMsg, Object result) {
-        return PackerFactory.PackerMade(1, errMsg, result);
+    public static String SendSuccess(Object result) {
+        return PackerFactory.PackerMade(1, "", result);
     }
 
     /**
@@ -76,11 +76,14 @@ public class PackerFactory {
      *
      * @return 数据包
      */
-    public static JSONObject SendUnAuthorizedCharacters() {
+    public static String SendUnAuthorizedCharacters() {
         return PackerFactory.SendFailed(ExceptionCatch.UnAuthorizedCharacters, "");
     }
 
-    public static JSONObject SendUnAuthorizedPermission() {
+    /**
+     * 发送一个 权限校验失败的提示
+     */
+    public static String SendUnAuthorizedPermission() {
         return PackerFactory.SendFailed(ExceptionCatch.UnAuthorizedPermission, "");
     }
 }

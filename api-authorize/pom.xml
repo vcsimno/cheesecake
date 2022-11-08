@@ -2,7 +2,7 @@
 <!--
   ~ Copyright (c) 2022. yize.link
   ~ editor: yize
-  ~ date:  2022/11/7
+  ~ date:  2022/11/8
   ~
   ~ @author yize<vcsimno@163.com>
   ~ 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -126,47 +126,6 @@
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
             <version>2.8.8</version>
-        </dependency>
-        <!--阿里SMS - API-->
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>dysmsapi20170525</artifactId>
-            <version>2.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>tea-console</artifactId>
-            <version>0.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>darabonba-env</artifactId>
-            <version>0.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>tea-openapi</artifactId>
-            <version>0.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>dysmsapi20180501</artifactId>
-            <version>1.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>tea-util</artifactId>
-            <version>0.2.13</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>darabonba-number</artifactId>
-            <version>0.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>tea</artifactId>
-            <version>1.1.14</version>
         </dependency>
 
 

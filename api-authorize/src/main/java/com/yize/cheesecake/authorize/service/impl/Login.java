@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/7
+ * date:  2022/11/8
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -25,48 +25,66 @@ import com.yize.cheesecake.common.authorize.AuthorizeMode;
 import com.yize.cheesecake.common.authorize.AuthorizeSubject;
 import com.yize.cheesecake.common.encrypt.AesEncryptUtils;
 import com.yize.cheesecake.common.exception.ExceptionCatch;
+import com.yize.cheesecake.common.from.From;
 import com.yize.cheesecake.common.header.GetHeader;
 import com.yize.cheesecake.common.mybatis.MyBatisUtils;
 import com.yize.cheesecake.common.redis.RedisKeys;
+import com.yize.cheesecake.common.vo.author.SubjectVO;
 import org.apache.ibatis.session.SqlSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class Login implements Authorization {
 
     @Value("${yize.session.token-keep}")
     private int token_keep; // token的持续有效时间
-    @Autowired
-    private HttpServletRequest request;
 
-    public AccessInfo doAuthorization(AuthorizeSubject subject) throws SQLException, AuthorizationFailedException {
+    /*公共盐*/
+    @Value("${yize.account.salt}")
+    private static String salt;
 
-        Optional<SqlSession> sqlSession = Optional.ofNullable(MyBatisUtils.getSqlSession());
-        if (!sqlSession.isPresent()) {
-            throw new SQLException();
-        }
+    public AccessInfo doAuthorization() throws SQLException, AuthorizationFailedException, IOException {
+
+        SqlSession sqlSession = MyBatisUtils.getSqlSession();
+        AuthorizeSubject subject = null;
         try {
+            /*读取表单*/
+            From<SubjectVO> from = new From<>(new SubjectVO());
             List<User> userList = null;
             /* 邮箱 密码 模式校验 */
-            switch (subject.getMode()) {
+            switch (from.getFrom().getAuth_mode()) {
                 case AuthorizeMode.AUTHORIZEBYPWD:
-                    userList = this.CurlUserByPwd(subject, sqlSession.get());
+                    subject = new AuthorizeSubject(
+                            from.getFrom().getAuth_mode(),
+                            from.getFrom().getAuth_subject(),
+                            from.getFrom().getAuth_pwd(),
+                            "MD5",
+                            salt
+                    );
+                    userList = this.CurlUserByPwd(subject, sqlSession);
                     break;
                 /* 手机 验证码 校验模式 */
                 case AuthorizeMode.AUTHORIZEBYCODE:
-                    userList = this.CurlUserByCode(subject, sqlSession.get());
+                    subject = new AuthorizeSubject(
+                            from.getFrom().getAuth_mode(),
+                            from.getFrom().getAuth_subject(),
+                            from.getFrom().getAuth_pwd()
+                    );
+                    userList = this.CurlUserByCode(subject, sqlSession);
                     break;
                 /* token 复活模式 */
                 case AuthorizeMode.AUTHORIZEBYTOKEN:
-                    userList = this.CurlUserByToken(subject, sqlSession.get());
+                    subject = new AuthorizeSubject(
+                            from.getFrom().getAuth_mode(),
+                            from.getFrom().getAuth_subject() /*token登录模式下，subject是其token*/
+                    );
+                    userList = this.CurlUserByToken(subject, sqlSession);
                     break;
                 /* 不支持的模式 */
                 default:
@@ -85,10 +103,10 @@ public class Login implements Authorization {
             }
 
             /*清理 如果有登录（WSS连接）记录，则清除，俗称踢下线。 （这个主要限制一个账号只有一个登录设备）*/
-            this.KillPreToken(subject, sqlSession.get());
+            this.KillPreToken(subject, sqlSession);
 
             /*读取用户权限*/
-            PromisesMapper promisesMapper = sqlSession.get().getMapper(PromisesMapper.class);
+            PromisesMapper promisesMapper = sqlSession.getMapper(PromisesMapper.class);
             PromisesExample promisesExample = new PromisesExample();
             promisesExample.createCriteria().andCcAccountEqualTo(userList.get(0).getCcAccount());
             List<Promises> promises = promisesMapper.selectByExample(promisesExample);
@@ -116,7 +134,7 @@ public class Login implements Authorization {
             AccessInfo info = new AccessInfo(tokenEncrypt);
 
             /*重新写入新的online*/
-            OnlineMapper onlineMapper = sqlSession.get().getMapper(OnlineMapper.class);
+            OnlineMapper onlineMapper = sqlSession.getMapper(OnlineMapper.class);
             Online online = new Online();
             /*用户的账号*/
             online.setCcAccount(userList.get(0).getCcAccount());
@@ -137,7 +155,7 @@ public class Login implements Authorization {
 
             onlineMapper.insert(online);
 
-            sqlSession.get().commit();
+            sqlSession.commit();
 
             /*把token写入redis缓存*/
             RedisUtils redis = RedisUtils.Instance();
@@ -147,10 +165,12 @@ public class Login implements Authorization {
             return info;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            sqlSession.rollback();
             throw new AuthorizationFailedException(e.getMessage());
         } finally {
-            sqlSession.get().close();
+            /*始终关闭数据源*/
+            sqlSession.close();
         }
     }
 

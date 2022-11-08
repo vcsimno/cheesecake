@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/7
+ * date:  2022/11/8
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -38,4 +38,15 @@ public class ExceptionCatch {
 
     /*jsonObject 错误*/
     public static final String BAD_JSON = "BAD-PARAM-DATA";
+
+    /*数据库池连接失败*/
+    public static final String MYSQL_SVR_ERROR = "MYSQL-SVR-ERROR";
+
+    /*I、O错误*/
+    public static final String SYS_IO_ERROR = "SYS_IO_ERROR";
+
+    /*13位数字号码输入错误*/
+    public static final String INVALID_PHONE_NUM = "INVALID_PHONE_NUM";
+    /*SMS 服务冷却中*/
+    public static final String SMS_IS_CD = "SMS_IS_CD";
 }

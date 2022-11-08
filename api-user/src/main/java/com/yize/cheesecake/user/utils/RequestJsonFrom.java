@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/1
+ * date:  2022/11/8
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -44,7 +44,7 @@ public class RequestJsonFrom {
             }
             return new JSONObject();
         } catch (IOException e) {
-            WriterLog.writerErrorLog(LOGGER, e);
+            LOGGER.error(e.getMessage());
             return new JSONObject();
         }
     }

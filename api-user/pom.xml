@@ -2,7 +2,7 @@
 <!--
   ~ Copyright (c) 2022. yize.link
   ~ editor: yize
-  ~ date:  2022/11/1
+  ~ date:  2022/11/8
   ~
   ~ @author yize<vcsimno@163.com>
   ~ 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -44,6 +44,12 @@
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
 
+        <!--公共工具类-->
+        <dependency>
+            <groupId>com.yize.cheesecake.common</groupId>
+            <artifactId>api-common</artifactId>
+            <version>1.0</version>
+        </dependency>
         <!--C3P0 beg-->
         <dependency>
             <groupId>c3p0</groupId>

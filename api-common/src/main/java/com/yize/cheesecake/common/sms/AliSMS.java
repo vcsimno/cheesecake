@@ -1,28 +1,24 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/3
+ * date:  2022/11/8
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
  */
 
-package com.yize.cheesecake.authorize.utils;
+package com.yize.cheesecake.common.sms;
 
-import com.alibaba.fastjson.JSON;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.aliyun.dysmsapi20180501.models.SendMessageWithTemplateRequest;
 import com.aliyun.dysmsapi20180501.models.SendMessageWithTemplateResponse;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
+import com.yize.cheesecake.common.vo.SmsVO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 
 @Component
 /*
@@ -107,16 +103,14 @@ public class AliSMS {
     /**
      * 给用户发送验证短信
      *
+     * @param code   验证码
      * @param sendTo 接收人
      * @return 发送结果
      */
-    public String sendVerify(String sendTo) throws Exception {
+    public static SmsVO sendVerify(String sendTo, String code) throws Exception {
 
-        StringBuilder code = new StringBuilder();
-        for (int i = 0; i < 6; ++i) {
-            code.append(new Random().nextInt(9) + 1);
-        }
 
+        /*
         Map<String, String> smsCode = new HashMap<>();
         smsCode.put("code", code.toString());
 
@@ -129,7 +123,10 @@ public class AliSMS {
         };
         java.util.List<String> args = java.util.Arrays.asList(args_);
 
-
-        return sendSMS(args.get(0), args.get(1), args.get(2), args.get(3)) + "," + code;
+         */
+        SmsVO vo = new SmsVO();
+        vo.setResult("模拟返回参数"); //sendSMS(args.get(0), args.get(1), args.get(2), args.get(3))
+        vo.setCode(code);
+        return vo;
     }
 }

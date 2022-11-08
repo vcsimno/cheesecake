@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022. yize.link
  * editor: yize
- * date:  2022/11/7
+ * date:  2022/11/8
  *
  * @author yize<vcsimno@163.com>
  * 本开源由yize发布和开发，部分工具引用了其他优秀团队的开源工具包。
@@ -11,26 +11,32 @@ package com.yize.cheesecake.common.from;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yize.cheesecake.common.EscapeUtil;
+import com.yize.cheesecake.common.header.GetHeader;
+import lombok.Getter;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 
 /**
- * 读取JSON格式的表单
+ * 读取客户端提交过来的JSOn 格式表单
+ *
+ * @param <T> 表单的实体类<VO>类型
  */
-public class RequestJsonFrom {
-    /**
-     * 读取表单
-     *
-     * @param request HTTP会话头
-     * @return JSONObject 格式的表单数据
-     */
-    public static JSONObject ToFrom(HttpServletRequest request) {
+public class From<T> implements Serializable {
+
+    /*表单VO*/
+    @Getter
+    private T from;
+
+    @SuppressWarnings("unchecked")
+    public From(T t) throws IOException {
+
         try {
 
-            BufferedReader streamReader = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            /*读取用户输入流*/
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(GetHeader.getInputStream()));
 
             StringBuilder responseBuilder = new StringBuilder();
 
@@ -48,19 +54,18 @@ public class RequestJsonFrom {
 
             if (responseBuilder.length() > 1) {
 
-                return JSONObject.parseObject(responseBuilder.toString());
+                /*把读取到的表单映射到VO*/
+                from = (T) JSONObject.parseObject(responseBuilder.toString()).toJavaObject(t.getClass());
 
             }
 
-            return new JSONObject();
 
         } catch (IOException e) {
 
-            //WriterLog.writerErrorLog(LOGGER, e);
-
-            return new JSONObject();
+            throw new IOException(e.getMessage());
 
         }
+
 
     }
 
